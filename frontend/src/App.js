@@ -1,21 +1,35 @@
 import './App.css';
-import Home from './pages/Home.js';
-import Register from './pages/Register.js';
-import Feature1 from './pages/Feature1.js';
-import Feature2 from './pages/Feature2.js';
-import Feature3 from './pages/Feature3.js';
-import About from './pages/About.js';
-import Myaccount from './pages/Myaccount.js';
-import Profile from './pages/Profile.js';
-import Login from './pages/Login.js';
-import Logout from './pages/Logout.js';
-import Header from "./components/Header.js";
-import {Route} from "react-router-dom";
+import Navbar from "./components/Navbar";
+import { BrowserRouter as Router,Switch,Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import '@ionic/react/css/core.css';
 
 function App() {
   return (
-    <div className="App">
-      <Header />
+    <>
+      
+      <Router>
+        <Switch>
+          <Route path='/home' component={Home} />
+          <Route path='/dashboard' component={Dashboard} />
+          <Route path='/about' component={About} />
+          <Route path='/' exact component={Login} />
+          <Route path='/register' component={Register} />
+        </Switch>
+        
+      </Router>
+      
+      
+      
+      
+    </>
+  );
+}
+/* <Header />
       <Route exact path="/" component={Home} />
       <Route exact path="/Register" component={Register} />
       <Route exact path="/Feature1" component={Feature1} />
@@ -25,11 +39,7 @@ function App() {
       <Route exact path="/Myaccount" component={Myaccount} />
       <Route exact path="/Profile" component={Profile} />
       <Route exact path="/Login" component={Login} />
-      <Route exact path="/Logout" component={Logout} />
-    </div>
-  );
-}
-
+      <Route exact path="/Logout" component={Logout} /> */
 
 
 
