@@ -280,7 +280,6 @@ module.exports = {
     getHourlyPricesOverYear
 }
 
-getAutoComplete("amazon");
 
 // format for json written to db, where there are 252 entries that represent each market day during the year period
 // {
