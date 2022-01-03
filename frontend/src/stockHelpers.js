@@ -277,7 +277,8 @@ module.exports = {
     writeDailyPricesOverYearDB,
     writeHourlyPricesOverYearDB,
     getDailyPricesOverYear,
-    getHourlyPricesOverYear
+    getHourlyPricesOverYear,
+    getAutoComplete
 }
 
 
