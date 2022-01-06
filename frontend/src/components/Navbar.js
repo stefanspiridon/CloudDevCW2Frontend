@@ -10,13 +10,15 @@ import { TopbarData} from '../pages/loginDropdown';
 import Typography from '@mui/material/Typography';
 import jwt from 'jsonwebtoken'
 import { useHistory } from 'react-router-dom'
+import { withRouter } from "react-router-dom";
+import auth from "../pages/Auth";
 
 
 
 
 
 
-function Navbar() {
+export const Navbar = props =>  {
     const [sidebar, setSidebar] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
 
@@ -65,12 +67,13 @@ function Navbar() {
                         <FaIcons.FaBars onClick={showSidebar}/>
                          
                     </Link>
-                    <Typography component="h1" variant="h5" display={"block"} color={"white"} position={"fixed"} top={"18px"} right={"70px"} zIndex={1}>
+                    <Typography component="h1" variant="h5" display={"block"} color={"white"} position={"relative"} top={"1px"} left={"57%"} >
                             {firstName + " " + lastName}
-                            <Typography component="h1"  color={"white"} position={"fixed"} top={"48px"} right={"70px"}>
-                                LOGGED IN
-                            </Typography>    
+                               
                     </Typography>
+                    <Typography component="h1"  color={"white"} position={"relative"} top={"25px"} left={"25%"}>
+                        LOGGED IN
+                    </Typography> 
                     <Link to="#" className="top-bars">
                         
                         <CgIcons.CgProfile onClick={showTopbar}/>
@@ -78,15 +81,15 @@ function Navbar() {
                 </div>
                 <nav className={topbar ? 'top-menu active' : 'top-menu'}>
                     <ul className='top-menu-items' onClick={showTopbar}>
-                        <li className='topbar-toggle'>
-                            <Link to="#" className='top-bars'>
-                                <CgIcons.CgProfile />
-                            </Link>
-                        </li>
+                        <li className='topbar-toggle'></li>
                         {TopbarData.map((item,index) => {
                             return (
                                 <li key={index} className={item.cName}>
-                                    <Link to={item.path}>
+                                    <Link onClick={() => {
+                                        auth.logout(() => {props.history.push("/");
+                                        });
+                                        }}
+                                    >
                                         {item.icon}
                                         <span>{item.title}</span> 
                                     </Link>
@@ -97,11 +100,7 @@ function Navbar() {
                 </nav>
                 <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
                     <ul className='nav-menu-items' onClick={showSidebar}>
-                        <li className='navbar-toggle'>
-                            <Link to="#" className='menu-bars'>
-                                <AiIcons.AiOutlineClose />
-                            </Link>
-                        </li>
+                        <li className='navbar-toggle'></li>
                         {SidebarData.map((item,index) => {
                             return (
                                 <li key={index} className={item.cName}>
@@ -120,5 +119,5 @@ function Navbar() {
 }
 
 
-export default Navbar;
+export default withRouter(Navbar);
 

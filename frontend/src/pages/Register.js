@@ -10,7 +10,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import auth from "./Auth";
 import { useHistory } from 'react-router-dom'
+import { withRouter } from "react-router-dom";
 
 const theme = createTheme();
 
@@ -67,8 +69,9 @@ function Register() {
 
 		if (data.user) {
 			localStorage.setItem('token', data.user)
+      auth.login()
 			alert('Login successful')
-			window.location.href = '/home'
+			
 		} else {
 			alert('Please check your username and password')
 		}
@@ -144,6 +147,7 @@ function Register() {
                   type="password"
                   id="password"
                   
+                  
                 />
               </Grid>
             </Grid>
@@ -168,4 +172,4 @@ function Register() {
     </ThemeProvider>
   );
 }
-export default Register
+export default withRouter(Register);

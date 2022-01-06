@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import jwt from 'jsonwebtoken'
 import { useHistory } from 'react-router-dom'
 import TradingViewWidget from 'react-tradingview-widget';
+import './Dashboard.css'
 
 function Dashboard() {
     return (
@@ -11,7 +12,7 @@ function Dashboard() {
             <Navbar />
          
             <body id="page-top">
-    <div id="wrapper">
+    <div id="wrapper" className='dash-content'>
         <div className="d-flex flex-column" id="content-wrapper">
             <div id="content">
                 <div className="container-fluid">
