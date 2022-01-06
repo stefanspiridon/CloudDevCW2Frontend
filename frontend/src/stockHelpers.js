@@ -29,10 +29,10 @@ function getAutoComplete(query) {
             var resultString = body.toString();
 
             //parsing output from http request to an object
-            resultObj = JSON.parse(resultString);
+            var resultObj = JSON.parse(resultString);
 
             //Stripping away unnecessary data from the result of the API query
-            outputObj = {
+            var outputObj = {
                 'count': resultObj.quotes.length,
                 'results': resultObj.quotes
             };
@@ -69,7 +69,6 @@ function writeDailyPricesOverYearDB(ticker) {
     // This function collects closing market prices every day over a range of a year for one stock ticker
     // Returns 252 data points and writes to DB
 
-    resultString = '';
 
     const options = {
         "method": "GET",
@@ -96,10 +95,10 @@ function writeDailyPricesOverYearDB(ticker) {
             //console.log(resultString);
 
             //parsing output from http request to an object#
-            resultObj = JSON.parse(resultString);
+            var resultObj = JSON.parse(resultString);
 
             //Stripping away unnecessary data from the result of the API query
-            outputObj = {
+            var outputObj = {
                 '_id': resultObj.chart.result[0].meta.symbol,
                 'symbol': resultObj.chart.result[0].meta.symbol,
                 'epoch-timestamps': resultObj.chart.result[0].timestamp,
@@ -117,7 +116,6 @@ function writeDailyPricesOverYearDB(ticker) {
 function writeHourlyPricesOverYearDB(ticker) {
     // This function collects closing market prices every hour over a range of a year for one stock ticker
 
-    resultString = '';
 
     const options = {
         "method": "GET",
@@ -147,7 +145,7 @@ function writeHourlyPricesOverYearDB(ticker) {
             const resultObj = JSON.parse(resultString);
 
             //Stripping away unnecessary data from the result of the API query
-            outputObj = {
+            var outputObj = {
                  _id: resultObj.chart.result[0].meta.symbol,
                  'symbol': resultObj.chart.result[0].meta.symbol,
                  'epoch-timestamps': resultObj.chart.result[0].timestamp,
@@ -184,7 +182,6 @@ function getDailyPricesOverYear(ticker) {
     // This function collects closing market prices every day over a range of a year for one stock ticker
     // Returns 252 data points
 
-    resultString = '';
 
     const options = {
         "method": "GET",
@@ -208,13 +205,12 @@ function getDailyPricesOverYear(ticker) {
         res.on("end", function () {
             const body = Buffer.concat(chunks);
             var resultString = body.toString();
-            //console.log(resultString);
 
             //parsing output from http request to an object#
-            resultObj = JSON.parse(resultString);
+            var resultObj = JSON.parse(resultString);
 
             //Stripping away unnecessary data from the result of the API query
-            outputObj = {
+            var outputObj = {
                 'symbol': resultObj.chart.result[0].meta.symbol,
                 'epoch-timestamps': resultObj.chart.result[0].timestamp,
                 'price-values': resultObj.chart.result[0].indicators.quote[0].close
@@ -258,7 +254,7 @@ function getHourlyPricesOverYear(ticker) {
             const resultObj = JSON.parse(resultString);
 
             //Stripping away unnecessary data from the result of the API query
-            outputObj = {
+            var outputObj = {
                  'symbol': resultObj.chart.result[0].meta.symbol,
                  'epoch-timestamps': resultObj.chart.result[0].timestamp,
                  'price-values': resultObj.chart.result[0].indicators.quote[0].close
