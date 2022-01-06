@@ -25,6 +25,50 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    
+ 
+   
+    <!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+  {
+  "symbols": [
+    {
+      "proName": "BITSTAMP:BTCUSD",
+      "title": "Bitcoin"
+    },
+    {
+      "proName": "BITSTAMP:ETHUSD",
+      "title": "Ethereum"
+    },
+    {
+      "description": "Apple",
+      "proName": "NASDAQ:AAPL"
+    },
+    {
+      "description": "Facebook",
+      "proName": "FTX:FBUSD"
+    },
+    {
+      "description": "Microsoft",
+      "proName": "NASDAQ:MSFT"
+    },
+    {
+      "description": "Samsung",
+      "proName": "KRX:005930"
+    }
+  ],
+  "showSymbolLogo": true,
+  "colorTheme": "light",
+  "isTransparent": false,
+  "displayMode": "adaptive",
+  "locale": "en"
+}
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -39,5 +83,11 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script src="%PUBLIC_URL%/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="%PUBLIC_URL%/assets/bootstrap/css/bootstrap.min.css"></script>
+  <script src="%PUBLIC_URL%/assets/js/chart.min.js"></script>
+  <script src="%PUBLIC_URL%/assets/js/bs-init.js"></script>
+  <script src="%PUBLIC_URL%/assets/js/theme.js"></script>
   </body>
+
 </html>
