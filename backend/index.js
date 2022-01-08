@@ -65,7 +65,22 @@ app.get('/api/userinfo', async (req, res) => {
 		const email = decoded.email
 		const user = await User.findOne({ email: email })
 
-		return res.json({ status: 'ok', firstName: user.firstName, lastName: user.lastName })
+		return res.json({ status: 'ok', firstName: user.firstName, lastName: user.lastName, list: user.watchlist })
+	} catch (error) {
+		console.log(error)
+		res.json({ status: 'error', error: 'invalid token' })
+	}
+})
+
+app.get('/api/userwatchlist', async (req, res) => {
+	const token = req.headers['x-access-token']
+
+	try {
+		const decoded = jwt.verify(token, 'secret123')
+		const email = decoded.email
+		const user = await User.findOne({ email: email })
+
+		return res.json({ status: 'ok', watchlist: user.watchlist})
 	} catch (error) {
 		console.log(error)
 		res.json({ status: 'error', error: 'invalid token' })

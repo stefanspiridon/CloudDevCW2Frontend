@@ -1,27 +1,19 @@
 import React from 'react'
 import Navbar from "../components/Navbar";
+import Watchlist from "../components/Watchlist";
+import SearchDropdown from "../components/searchDropdown.js";
 import jwt from 'jsonwebtoken';
 import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import './Dashboard.css'
 
 const stockhelpers = require('../stockHelpers.js');
 
 function Dashboard() {
     const [suggestions, setSuggestions] = useState([]);
-    const [text, setText] = useState('');
-    const watchList = [];
-
-    // const loadSearchResults = async(input) => {
-    //     const results = await stockhelpers.getAutoComplete(input);
-    //     //console.log(results.results);
-    //     //setResults(results.results);
-    //     return results.results;
-    // }
+    //const [text, setText] = useState('');
+    //const watchList = [];
 
     const onSearchSubmit = async(e) => {
         if (e.key === 'Enter') {
@@ -42,12 +34,6 @@ function Dashboard() {
             console.log(matches);
             setSuggestions(matches);
         }
-    }
-
-    function addTicker() {
-        //TODO:
-        //add function to add selected ticker to the watchlist
-        //and save list to db
     }
 
     const handleKeyDown = (e) => {
@@ -83,57 +69,8 @@ function Dashboard() {
                                             <div className="col"><img src="/search.png" height={10} width={10}></img></div>
                                         </div>
                                     </li>
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2">
-                                                <h6 className="mb-0"><strong>Apple</strong></h6><span className="text-xs">$350</span>
-                                            </div>
-                                            <div className="col-auto">
-                                                <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-2" checked=""/><label className="form-check-label" for="formCheck-2"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2">
-                                                <h6 className="mb-0"><strong>Bitcoin</strong></h6><span className="text-xs">$48,000</span>
-                                            </div>
-                                            <div className="col-auto">
-                                                <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-3"/><label className="form-check-label" for="formCheck-3"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2">
-                                                <h6 className="mb-0"><strong>Facebook</strong></h6><span className="text-xs">$4000</span>
-                                            </div>
-                                            <div className="col-auto">
-                                                <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-4" checked=""/><label className="form-check-label" for="formCheck-4"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2">
-                                                <h6 className="mb-0"><strong>Amazon</strong></h6><span className="text-xs">$3000</span>
-                                            </div>
-                                            <div className="col-auto">
-                                                <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-5" checked=""/><label className="form-check-label" for="formCheck-5"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2">
-                                                <h6 className="mb-0"><strong>Tesla</strong></h6><span className="text-xs">$400</span>
-                                            </div>
-                                            <div className="col-auto">
-                                                <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-1"/><label className="form-check-label" for="formCheck-1"></label></div>
-                                            </div>
-                                        </div>
-                                    </li>
                                 </ul>
+                                <Watchlist />
                             </div>
                         </div>
                         <div className="col-lg-7 col-xl-8">
