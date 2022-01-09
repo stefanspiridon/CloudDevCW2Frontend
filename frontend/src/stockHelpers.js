@@ -7,7 +7,7 @@ function test() {
     getQuote("TSLA").then(function (response) {console.log(response);});
 }
 
-test();
+//test();
 
 async function getQuote(symbol) {
     //Returns json containing symbol, shortName, market, and price.
@@ -27,7 +27,7 @@ async function getQuote(symbol) {
             'shortName': response.data.price.shortName,
             'price': response.data.price.regularMarketPrice.raw
         };
-        //console.log(outputObj);
+        console.log(outputObj);
         return outputObj;
     }).catch(function (err) {
         console.error(err);
