@@ -3,6 +3,7 @@
     top: 5px; 
     right: 1%;
     font-size: 2rem;
+    margin-bottom: 45px;
     background: none;
 }
 
@@ -12,6 +13,8 @@
     height: 15vh;
     display: flex;
     justify-content: center;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
     position: relative;
     z-index: 1;
     top: -100%;
@@ -94,6 +97,7 @@
     margin-left: 2rem;
     font-size: 2rem;
     background: none;
+    margin-bottom: 40px;
 }
 
 .nav-text {

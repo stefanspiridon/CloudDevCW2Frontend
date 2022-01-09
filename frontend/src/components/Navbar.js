@@ -12,6 +12,7 @@ import jwt from 'jsonwebtoken'
 import { useHistory } from 'react-router-dom'
 import { withRouter } from "react-router-dom";
 import auth from "../pages/Auth";
+import logo from "./TradePal2.png"
 
 
 
@@ -65,13 +66,15 @@ export const Navbar = props =>  {
                 <div className='navbar'>
                     <Link to="#" className="menu-bars">
                         <FaIcons.FaBars onClick={showSidebar}/>
-                         
+                        
                     </Link>
-                    <Typography component="h1" variant="h5" display={"block"} color={"white"} position={"relative"} top={"1px"} left={"57%"} >
+                    <img src={logo} alt="Logo" style={{position: 'relative',top: '-27px', left: '22%'}}/>
+
+                    <Typography component="h1" variant="h5" display={"block"} color={"white"} position={"relative"}  top={"-20px"} left={"36%"}>
                             {firstName + " " + lastName}
                                
                     </Typography>
-                    <Typography component="h1"  color={"white"} position={"relative"} top={"25px"} left={"25%"}>
+                    <Typography component="h1"  color={"white"} position={"relative"} top={"0px"} left={"14%"}>
                         LOGGED IN
                     </Typography> 
                     <Link to="#" className="top-bars">
