@@ -1,46 +1,61 @@
 import React from 'react'
 import Navbar from "../components/Navbar";
 import Watchlist from "../components/Watchlist";
-import SearchDropdown from "../components/searchDropdown.js";
 import jwt from 'jsonwebtoken';
 import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
-import './Dashboard.css'
+import './Dashboard.css';
 
 const stockhelpers = require('../stockHelpers.js');
+const axios = require('axios').default
 
 function Dashboard() {
     const [suggestions, setSuggestions] = useState([]);
+    const [currentSymbol, setCurrentSymbol] = useState('TSLA');
+    const [shortMedLong, setShortMedLong] = useState('short');
+    const [predictedPrice, setPredictedPrice] = useState(0);
     //const [text, setText] = useState('');
     //const watchList = [];
 
-    const onSearchSubmit = async(e) => {
-        if (e.key === 'Enter') {
-            let tempArray = [];
-            let matches = [];
-
-            tempArray = await stockhelpers.getAutoComplete(e.target.value);
+    function StockPrediction(inputMsg) { 
+        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
+        var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
     
-            //trim the results to top 10
-            if (tempArray.length > 10) {
-                tempArray = tempArray.slice(0, 9);
+        var options = {
+            url: URI,
+            // hostname: "cosmosdbquiplash.azurewebsites.net",
+            // path: "/api/register?",
+            method: 'post',
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-functions-key': APP_KEY
             }
-    
-            //convert the objects into strings to display
-            for (var record of tempArray) {
-                matches.push(record.symbol + ' - ' + record.shortname);
-            }
-            console.log(matches);
-            setSuggestions(matches);
         }
+        //console.log("outputting!")
+        return axios.post(URI,inputMsg);
     }
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            onSearchSubmit(e);
+    function getTimeFromSML() {
+        if (shortMedLong == "short") {
+            return 86400
+        } else if (shortMedLong == "med") {
+            return 2678400
+        } else if (shortMedLong == "long") {
+            return 31536000
+        } else {
+            alert('error');
         }
+        //return calculated timestamp from shortMedLong
     }
+    
+    async function getPrediction() {
+        setPredictedPrice(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
+    }
+
+    useEffect(() => {
+        getPrediction();
+    }, [])
 
     return (
         
@@ -61,16 +76,7 @@ function Dashboard() {
                                 <div className="card-header py-3">
                                     <h6 className="text-primary fw-bold m-0">Stocks</h6>
                                 </div>
-                                <ul className="list-group list-group-flush">
-                                    <li className="list-group-item">
-                                        <div className="row align-items-center no-gutters">
-                                            <div className="col me-2"><input type="text"/></div>
-                                           
-                                            <div className="col"><img src="/search.png" height={10} width={10}></img></div>
-                                        </div>
-                                    </li>
-                                </ul>
-                                <Watchlist />
+                                <Watchlist currentSymbol={currentSymbol}/>
                             </div>
                         </div>
                         <div className="col-lg-7 col-xl-8">
@@ -89,7 +95,7 @@ function Dashboard() {
 </div>
                                 
                                 <div className="card-body">
-                                    <div className="chart-area m-0">   <TradingViewWidget symbol="NASDAQ:AAPL" autosize /></div>
+                                    <div className="chart-area m-0">   <TradingViewWidget symbol={currentSymbol} autosize /></div>
                                 </div>
                             </div>
                         </div>
@@ -124,11 +130,17 @@ function Dashboard() {
                                         </div>
                                     </div>
                                     <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Bitcoin</button>
-                                        <div className="dropdown-menu"><a className="dropdown-item" href="#">First Item</a><a className="dropdown-item" href="#">Second Item</a><a className="dropdown-item" href="#">Third Item</a></div>
+                                        <div className="dropdown-menu"><a className="dropdown-item" href="#" onClick={(e) => console.log(e.target.value)}>First Item</a><a className="dropdown-item" href="#">Second Item</a><a className="dropdown-item" href="#">Third Item</a></div>
                                     </div>
                                 
                                 </div>
                                 <div className="card-body">
+                                    {/* <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() =>setShortMedLong('short')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Short</a>
+                                    <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('med')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Medium</a>
+                                    <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('long')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Long</a> */}
+                                    {/* <div className="result"> */}
+                                        {/* <p>Result: {predictedPrice}</p> */}
+                                    {/* </div> */}
                                     <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}"></canvas></div>
                                 </div>
                                 
