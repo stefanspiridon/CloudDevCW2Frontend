@@ -12,7 +12,11 @@ function Home() {
         <Navbar />
         <div className="wrapper">
             <Container maxWidth="lg" sx={{mb: 30,display: "block" }}>
-                <h3>Home</h3>
+                <h1 style={{color:'#F9B346', fontWeight: 'bold'}}>Let's Trade Pal!</h1>
+
+                <h2>TradePal is your one stop shop for Financial News and Advice as well as Stock Market Price Data and Predictions!</h2>
+                <h3>Visit our Dashboard to search for the latest stocks, analyse their price over time and get a Price Prediction based on Machine Learning Algorithms, receive Potfolio Advice and check the recent relevant Social Media Posts.  </h3>
+
                 <Grid container sx={{mt:10,ml:10}}>
                   <Grid item xs={12}>
                     <Paper sx={{ p: 3, flexDirection: 'column' }}> 
