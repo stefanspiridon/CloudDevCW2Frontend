@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import {Helmet} from 'react-helmet';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,6 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import auth from "./Auth";
 import { useHistory } from 'react-router-dom'
 import { withRouter } from "react-router-dom";
+import logo from './TradePal.png';
 
 const theme = createTheme();
 
@@ -81,14 +83,23 @@ function Register() {
 
   return (
     <ThemeProvider theme={theme}>
+      <Helmet>
+        <style>{'body { background-color: #060b26;}}'}</style>
+      </Helmet>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        <img src={logo} alt="Logo" style={{marginLeft: '50px', marginTop:'50px'}}/>
         <Box
           sx={{
             marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            bgcolor: 'white',
+            borderRadius: '25px',
+            paddingX: '15px',
+            paddingBottom: '20px',
+            boxShadow: '0px -10px'
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: '#060b26' }}>
@@ -155,11 +166,11 @@ function Register() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, bgcolor:'#060b26' }}
             >
               Sign Up
             </Button>
-            <Grid container justifyContent="flex-end">
+            <Grid container justifyContent="flex-start">
               <Grid item>
                 <Link href="/" variant="body2">
                   Already have an account? Sign in
