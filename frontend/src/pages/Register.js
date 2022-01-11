@@ -26,7 +26,7 @@ const theme = createTheme();
 
 
 
-function Register() {
+export const Register = props => {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -71,7 +71,9 @@ function Register() {
 
 		if (data.user) {
 			localStorage.setItem('token', data.user)
-      auth.login()
+      auth.login(() => {
+        props.history.push("/home");
+      });
 			alert('Login successful')
 			
 		} else {
