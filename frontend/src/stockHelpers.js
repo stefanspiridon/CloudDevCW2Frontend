@@ -2,12 +2,51 @@ const { MongoClient } = require('mongodb');
 const http = require("https");
 const axios = require("axios");
 
+const alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
 function test() {
-    getAutoComplete("tesla").then(function (response) {console.log(response);});
-    getQuote("TSLA").then(function (response) {console.log(response);});
+    getAutoComplete("a").then(function (response) {console.log(response);});
+    // getQuote("TSLA").then(function (response) {console.log(response);});
+    //getAllStocks("a");
 }
 
 //test();
+
+async function getAllStocks(character) {
+    let counter = 0;
+    let resultsArray = [[]];
+
+    //resultsArray[counter]
+    getAutoComplete(character).then((value) => {
+            // for (var record in value.results) {
+            //     resultsArray[counter].push(
+            //         {
+            //             symbol: record.symbol,
+            //             name: record.shortName
+            //         }
+            //     )
+            // }
+            // writeAllToDB(resultsArray[counter]);
+            // counter += 1;
+        console.log(value);
+    });
+
+        // getAutoComplete(character).then(function (response) {
+        //     //resultsArray[counter] = response.data.results
+        //     for (var record in response.data.results) {
+        //         resultsArray[counter].push(
+        //             {
+        //                 symbol: record.symbol,
+        //                 name: record.shortName
+        //             }
+        //         )
+        //     }
+        //     writeAllToDB(resultsArray[counter]);
+        //     counter += 1;
+        // })
+    
+
+}
 
 async function getQuote(symbol) {
     //Returns json containing symbol, shortName, market, and price.
@@ -17,7 +56,7 @@ async function getQuote(symbol) {
         params: {symbol: symbol, region: 'GB'},
         headers: {
             'x-rapidapi-host': 'yh-finance.p.rapidapi.com',
-            'x-rapidapi-key': '9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e'
+            'x-rapidapi-key': '5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99'
         }
     };
       
@@ -44,16 +83,17 @@ async function getAutoComplete(query) {
         params: {q: query, region: 'GB'},
         headers: {
             'x-rapidapi-host': 'yh-finance.p.rapidapi.com',
-            'x-rapidapi-key': '9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e'
+            'x-rapidapi-key': '5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99'
         }
     };
 
     axios.request(options).then(function (response) {
+        //console.log(response.data);
         var outputObj = {
             'count': response.data.quotes.length,
             'results': response.data.quotes
         };
-        //console.log(outputObj);
+        console.log(outputObj);
         return outputObj;
     }).catch(function (err) {
         console.error(err);
@@ -72,7 +112,7 @@ function writeDailyPricesOverYearDB(ticker) {
         "path": "/stock/v3/get-chart?interval=60m&symbol=" + ticker + "&range=1y&region=GB&includePrePost=false&useYfid=true&includeAdjustedClose=true&events=capitalGain%2Cdiv%2Csplit",
         "headers": {
             "x-rapidapi-host": "yh-finance.p.rapidapi.com",
-            "x-rapidapi-key": "9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e",
+            "x-rapidapi-key": "5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99",
             "useQueryString": true
         }
     };
@@ -119,7 +159,7 @@ function writeHourlyPricesOverYearDB(ticker) {
         "path": "/stock/v3/get-chart?interval=60m&symbol=" + ticker + "&range=1y&region=US&includePrePost=false&useYfid=true&includeAdjustedClose=true&events=capitalGain%2Cdiv%2Csplit",
         "headers": {
             "x-rapidapi-host": "yh-finance.p.rapidapi.com",
-            "x-rapidapi-key": "9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e",
+            "x-rapidapi-key": "5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99",
             "useQueryString": true
         }
     };
@@ -172,6 +212,22 @@ async function writeToDB(myObj) {
     }
 }
 
+async function writeAllToDB(myObjArray) {
+    const uri = "mongodb+srv://admin2:admin@clouddevcw.hc58e.mongodb.net/CloudDevCW?retryWrites=true&w=majority";
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    
+    try {
+        // Connect to the MongoDB cluster
+        await client.connect();
+        // Make the appropriate DB calls
+        await client.db("CloudDevCW").collection("StocksList").insertMany(myObjArray);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 
 async function getDailyPricesOverYear(ticker) {
     // This function collects closing market prices every day over a range of a year for one stock ticker
@@ -185,7 +241,7 @@ async function getDailyPricesOverYear(ticker) {
         "path": "/stock/v3/get-chart?interval=60m&symbol=" + ticker + "&range=1y&region=GB&includePrePost=false&useYfid=true&includeAdjustedClose=true&events=capitalGain%2Cdiv%2Csplit",
         "headers": {
             "x-rapidapi-host": "yh-finance.p.rapidapi.com",
-            "x-rapidapi-key": "9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e",
+            "x-rapidapi-key": "5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99",
             "useQueryString": true
         }
     };
@@ -228,7 +284,7 @@ function getHourlyPricesOverYear(ticker) {
         "path": "/stock/v3/get-chart?interval=60m&symbol=" + ticker + "&range=1y&region=US&includePrePost=false&useYfid=true&includeAdjustedClose=true&events=capitalGain%2Cdiv%2Csplit",
         "headers": {
             "x-rapidapi-host": "yh-finance.p.rapidapi.com",
-            "x-rapidapi-key": "9eede233c7mshc7915a81147112ap1c363djsn1f7192cb8d8e",
+            "x-rapidapi-key": "5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99",
             "useQueryString": true
         }
     };

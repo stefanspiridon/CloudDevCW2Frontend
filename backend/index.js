@@ -50,6 +50,20 @@ app.post('/api/register', async (req, res) => {
             lastName: req.body.lastName,
 			email: req.body.email,
 			password: hashedPassword,
+			watchlist: [
+                {
+                    'symbol': 'TSLA',
+                    'name': 'Tesla'
+                }, 
+                {
+                    'symbol': 'MSFT',
+                    'name': 'Microsoft'
+                }, 
+                {
+                    'symbol': 'AAPL',
+                    'name': 'Apple'
+                }
+            ]
 		})
 		res.json({ status: 'ok' })
 	} catch (err) {
@@ -84,6 +98,29 @@ app.get('/api/userwatchlist', async (req, res) => {
 	} catch (error) {
 		console.log(error)
 		res.json({ status: 'error', error: 'invalid token' })
+	}
+})
+
+app.post('/api/userwatchlist', async (req, res) => {
+	const token = req.headers['x-access-token']
+
+	console.log(req.body)
+	try {
+		const decoded = jwt.verify(token, 'secret123')
+		const email = decoded.email
+
+		const newWatchlist = req.body.watchlist;
+
+		const filter = { email: email };
+		const update = { watchlist: newWatchlist };
+
+		// `doc` is the document _before_ `update` was applied
+		let doc = await User.findOneAndUpdate(filter, update);
+
+		doc = await User.findOne(filter)
+		res.json({ status: 'ok' })
+	} catch (err) {
+		res.json({ status: 'error', error: 'Stock Not Added' })
 	}
 })
 

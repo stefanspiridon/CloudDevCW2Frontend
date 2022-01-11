@@ -2,64 +2,61 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom'
 import { withRouter } from "react-router-dom";
-import SearchDropdown from "../components/searchDropdown.js";
 import jwt from 'jsonwebtoken'
+import styled from 'styled-components';
 
-const stockhelpers = require('../stockHelpers.js');
-//const [currentSymbol, setCurrentSymbol] = useState('');
-const currentSymbol = '';
+const alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
-export function setCurrentSymbol(symbol) {
-    currentSymbol = symbol;
-}
+const DropDownContainer = styled("div")`
+  width: 100%;
+  margin: 0 auto;
+`;
 
-function Search(props) {
-    //add search functions here
+const DropDownHeader = styled("div")`
+  margin-bottom: 0.8em;
+  padding: 0.4em 1em 0.4em 1em;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: #3faffa;
+  background: #ffffff;
+`;
 
-    // const onSearchSubmit = async(e) => {
-    //     if (e.key === 'Enter') {
-    //         let tempArray = [];
-    //         let matches = [];
+const DropDownListContainer = styled("div")``;
 
-    //         tempArray = await stockhelpers.getAutoComplete(e.target.value);
-    
-    //         //trim the results to top 10
-    //         if (tempArray.length > 10) {
-    //             tempArray = tempArray.slice(0, 9);
-    //         }
-    
-    //         //convert the objects into strings to display
-    //         for (var record of tempArray) {
-    //             matches.push(record.symbol + ' - ' + record.shortname);
-    //         }
-    //         console.log(matches);
-    //         setSuggestions(matches);
-    //     }
-    // }
+const DropDownList = styled("ul")`
+  width: 95%;
+  position: absolute;
+  z-index: 100;
+  padding: 0;
+  margin: 0;
+  padding-left: 1em;
+  background: #ffffff;
+  border: 2px solid #e5e5e5;
+  box-sizing: border-box;
+  color: #3faffa;
+  font-size: 1rem;
+  font-weight: 500;
+  &:first-child {
+    padding-top: 0.8em;
+  }
+`;
 
+const ListItem = styled("li")`
+  list-style: none;
+  margin-bottom: 0.8em;
+`;
 
-    return (
-        <>
-        <li className="list-group-item">
-            <div className="row align-items-center no-gutters">
-                <div className="col me-2"><input type="text"/></div>
-                
-                <div className="col"><img src="/search.png" height={10} width={10} ></img></div>
-            </div>
-        </li>
-        </>
-    )
-}
+//const stockhelpers = require('../stockHelpers.js');
 
 export const Watchlist = (props) => {
     const [watchlist, setWatchlist] = useState([]);
-    //const [selected, setSelected] = useState([]);
     const [currentSymbol, setCurrentSymbol] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [options, setOptions] = useState(["Apple - AAPL", "Tesla - TSLA", "Nvidia - NVDA", "Novavax - NVAX", "Coin - COIN", "Microsoft - MSFT", "Facebook - FB", "AMC - AMC", "Palantir - PLTR", "Moderna - MRNA"]);
+    const toggling = () => setIsOpen(!isOpen);
     const history = useHistory();
-
-    async function addStockToList() {
-
-    }
 
     function isCurrent(symbol) {
         if (symbol === currentSymbol) {
@@ -69,11 +66,70 @@ export const Watchlist = (props) => {
         }
     }
 
-    function onClickStock(symbol) {
-        setCurrentSymbol(symbol)
+    const onOptionClicked = value => () => {
+        console.log(value);
+        //get symbol from string
+        var symbol = value.substring(value.indexOf('-') + 1, value.length);
+        //get name from string
+        var name = value.substring(0, value.indexOf('-') - 2);
+        setSelectedOption(symbol);
+        addToList();
+        getList();
+        setWatchlist(watchlist.concat([{'name':name,'symbol':symbol}]));
+        setIsOpen(false);
+        console.log(selectedOption);
+    };
+
+    
+
+    // async function getSearchResults() {
+    //     let counter = 0;
+    //     let resultsArray = [[]];
+    //     let matches = [];
+
+    //     for (var character in alpha) {
+    //         resultsArray[counter] = await stockhelpers.getAutoComplete(character);
+    //     }
+
+    //     for (var i in resultsArray) {
+    //         for (var j in i) {
+    //             matches.push(j.symbol + ' - ' + j.shortName);
+    //         }
+    //     }
+    //     setOptions(matches);
+    // }
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            toggling();
+            //onSearchSubmit(e);
+        }
     }
 
-    async function getList(){
+    const addToList = async(symbol, name) => {
+        var newWatchlist = watchlist;
+        newWatchlist.push({'symbol': symbol, 'name': name});
+
+        const req = await fetch('http://localhost:1337/api/userwatchlist', { 
+            method: 'POST',
+			headers: {
+				'x-access-token': localStorage.getItem('token'),
+			},
+            body: JSON.stringify({
+				watchlist: newWatchlist
+			}),
+        })
+
+        const data = await req.json()
+        if (data.status === 'ok') {
+            setWatchlist(data.watchlist)
+            //console.log(watchlist)
+        } else {
+            alert(data.error)
+        }
+    }
+
+    const getList = async() => {
         const req = await fetch('http://localhost:1337/api/userwatchlist', { 
 			headers: {
 				'x-access-token': localStorage.getItem('token'),
@@ -107,19 +163,43 @@ export const Watchlist = (props) => {
         setCurrentSymbol(props.currentSymbol)
     }, [props.currentSymbol])
 
+    useEffect(() => {
+        getList()
+        //This function listens for watchlist changing and then calls getList
+        //To update from db
+    }, [watchlist])
+
     return (
         <>
             <ul className="list-group list-group-flush">
-                <Search />
+                
+                <li className="list-group-item">
+                    <div className="row align-items-center no-gutters">
+                        
+                        {/* <div className="col"><img src="/search.png" height={10} width={10} ></img></div> */}
+
+                        <DropDownContainer>
+                            <DropDownHeader onKeyDown={e => handleKeyDown(e)}><input type="text" style={{width: "100%", margin: "0 auto"}}/></DropDownHeader>
+                            {isOpen && (
+                            <DropDownListContainer>
+                                <DropDownList>
+                                {options.slice(0,10).map(option => (
+                                    <ListItem onClick={onOptionClicked(option)} key={Math.random()}>
+                                    {option}
+                                    </ListItem>
+                                ))}
+                                </DropDownList>
+                            </DropDownListContainer>
+                            )}
+                        </DropDownContainer>
+                    </div>
+                </li>
                 {watchlist !== undefined && watchlist.map((stock, index) => {
                     return (
                         <li key={index} className="list-group-item">
                             <div className="row align-items-center no-gutters">
                                 <div className="col me-2">
                                     <h6 className="mb-0"><strong>{stock.name}</strong></h6><span className="text-xs">{stock.symbol}</span>
-                                </div>
-                                <div className="col-auto">
-                                    <div className="form-check"><input className="form-check-input" type="checkbox" id="formCheck-2" checked={isCurrent(stock.symbol)}/><label className="form-check-label" for="formCheck-2"></label></div>
                                 </div>
                             </div>
                         </li>

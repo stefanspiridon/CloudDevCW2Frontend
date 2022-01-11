@@ -15,34 +15,36 @@ function Dashboard() {
     const [currentSymbol, setCurrentSymbol] = useState('TSLA');
     const [shortMedLong, setShortMedLong] = useState('short');
     const [predictedPrice, setPredictedPrice] = useState(0);
-    //const [text, setText] = useState('');
-    //const watchList = [];
+    const [predictionPercentages, setPredictionPercentages] = useState([50, 50]);
+    const [decisionCanvasString, setDecisionCanvasString] = useState("{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}");
 
-    function StockPrediction(inputMsg) { 
-        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
+    function StockPrediction(inputMsg) {
         var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
     
-        var options = {
-            url: URI,
-            // hostname: "cosmosdbquiplash.azurewebsites.net",
-            // path: "/api/register?",
-            method: 'post',
-            headers: { 
-                'Content-Type': 'application/json',
-                'x-functions-key': APP_KEY
-            }
-        }
-        //console.log("outputting!")
         return axios.post(URI,inputMsg);
+    }
+
+    function percIncrease(a, b) {
+        let percent;
+        if(b !== 0) {
+            if(a !== 0) {
+                percent = (b - a) / a * 100;
+            } else {
+                percent = b * 100;
+            }
+        } else {
+            percent = - a * 100;            
+        }       
+        return Math.floor(percent);
     }
 
     function getTimeFromSML() {
         if (shortMedLong == "short") {
-            return 86400
+            return (new Date().getTime()) + 86400
         } else if (shortMedLong == "med") {
-            return 2678400
+            return (new Date().getTime()) + 2678400
         } else if (shortMedLong == "long") {
-            return 31536000
+            return (new Date().getTime()) + 31536000
         } else {
             alert('error');
         }
@@ -51,11 +53,17 @@ function Dashboard() {
     
     async function getPrediction() {
         setPredictedPrice(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
+        
+        setPredictionPercentages(percIncrease(predictedPrice));
     }
 
     useEffect(() => {
         getPrediction();
     }, [])
+
+    useEffect(() => {
+        getPrediction();
+    }, [shortMedLong])
 
     return (
         
