@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 import './Dashboard.css';
+import DisplayTable from '../components/DisplayTable';
 
 const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
@@ -15,36 +16,36 @@ function Dashboard() {
     const [currentSymbol, setCurrentSymbol] = useState('TSLA');
     const [shortMedLong, setShortMedLong] = useState('short');
     const [predictedPrice, setPredictedPrice] = useState(0);
-    const [predictionPercentages, setPredictionPercentages] = useState([50, 50]);
-    const [decisionCanvasString, setDecisionCanvasString] = useState("{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}");
+    //const [text, setText] = useState('');
+    //const watchList = [];
+    const [data, setData] = useState([]);
+    const [facebook, setFacebook] = useState([]);
 
-    function StockPrediction(inputMsg) {
+    function StockPrediction(inputMsg) { 
+        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
         var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
     
-        return axios.post(URI,inputMsg);
-    }
-
-    function percIncrease(a, b) {
-        let percent;
-        if(b !== 0) {
-            if(a !== 0) {
-                percent = (b - a) / a * 100;
-            } else {
-                percent = b * 100;
+        var options = {
+            url: URI,
+            // hostname: "cosmosdbquiplash.azurewebsites.net",
+            // path: "/api/register?",
+            method: 'post',
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-functions-key': APP_KEY
             }
-        } else {
-            percent = - a * 100;            
-        }       
-        return Math.floor(percent);
+        }
+        //console.log("outputting!")
+        return axios.post(URI,inputMsg);
     }
 
     function getTimeFromSML() {
         if (shortMedLong == "short") {
-            return (new Date().getTime()) + 86400
+            return 86400
         } else if (shortMedLong == "med") {
-            return (new Date().getTime()) + 2678400
+            return 2678400
         } else if (shortMedLong == "long") {
-            return (new Date().getTime()) + 31536000
+            return 31536000
         } else {
             alert('error');
         }
@@ -53,17 +54,25 @@ function Dashboard() {
     
     async function getPrediction() {
         setPredictedPrice(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
-        
-        setPredictionPercentages(percIncrease(predictedPrice));
     }
 
     useEffect(() => {
-        getPrediction();
+        getPrediction()
+        getTweetsApi()
+        getFacebookApi()
     }, [])
 
-    useEffect(() => {
-        getPrediction();
-    }, [shortMedLong])
+    const getTweetsApi = () => {
+        fetch('http://localhost:1337/api/gettweets')
+            .then(res => res.json())
+            .then(data => setData(data.message))
+    }
+
+    const getFacebookApi = () => {
+        fetch('http://localhost:1337/api/getfacebook')
+            .then(res => res.json())
+            .then(facebook => setFacebook(facebook.message))
+    }
 
     return (
         
@@ -168,34 +177,11 @@ function Dashboard() {
                                                 </div>
                                             </div>
                                             <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Tesla</button>
-                                                <div className="dropdown-menu"><a className="dropdown-item" href="#">First Item</a><a className="dropdown-item" href="#">Second Item</a><a className="dropdown-item" href="#">Third Item</a></div>
+                                                <div className="dropdown-menu"><a className="dropdown-item" onSelect={getTweetsApi}>Nvidia</a><a className="dropdown-item" href="#">Apple</a><a className="dropdown-item" href="#">Microsoft</a></div>
                                             </div>
                                         </div>
                                         <div className="card-body">
-                                            <div className="table-responsive">
-                                                <table className="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>User</th>
-                                                            <th>Tweet</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>Elon Musk</td>
-                                                            <td>Doge coin to moon</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Tesla Inc</td>
-                                                            <td>We are experiencing server issues</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Trump</td>
-                                                            <td>Tesla Banned</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                            <DisplayTable datas={data}/>
                                         </div>
                                     </div>
                                 </div>
@@ -204,35 +190,11 @@ function Dashboard() {
                                         <div className="card-header d-flex justify-content-between align-items-center">
                                             <h6 className="text-primary fw-bold m-0">News</h6>
                                             <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Facebook</button>
-                                                <div className="dropdown-menu"><a className="dropdown-item" href="#">First Item</a><a className="dropdown-item" href="#">Second Item</a><a className="dropdown-item" href="#">Third Item</a></div>
+                                                <div className="dropdown-menu"><a className="dropdown-item" href="#">New York Times</a><a className="dropdown-item" href="#">Investing.com</a><a className="dropdown-item" href="#">Economic Times</a></div>
                                             </div>
                                         </div>
                                         <div className="card-body">
-                                            <div className="table-responsive">
-                                                <table className="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Title&nbsp;</th>
-                                                            <th>Description</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>Metaverse</td>
-                                                            <td>Facebook was hacked last night by a group known as ....<br/></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Facebook Hacked</td>
-                                                            <td>Facebook was hacked last night by a group known as ....</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Facebook Coin ICO was a fail</td>
-                                                            <td>Facebook was hacked last night by a group known as ....<br/></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div className="text-center small mt-4"></div>
+                                            <DisplayTable datas={facebook}/> 
                                         </div>
                                     </div>
                                 </div>

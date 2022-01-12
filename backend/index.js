@@ -3,6 +3,9 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const User = require('./models/user')
+const Tweet = require('./models/tweet')
+const Facebook = require('./models/facebook')
+const Times = require('./models/times')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
@@ -123,6 +126,25 @@ app.post('/api/userwatchlist', async (req, res) => {
 		res.json({ status: 'error', error: 'Stock Not Added' })
 	}
 })
+
+app.get('/api/gettweets', async (req, res) => {
+	const token = req.headers['x-access-token']
+	const tweet = await Tweet.find({}).limit(3);
+	res.json({message : tweet})
+})
+
+app.get('/api/getfacebook', async (req, res) => {
+	const token = req.headers['x-access-token']
+	const facebook = await Facebook.find({}).limit(3)
+	res.json({message : facebook})
+})
+
+app.get('/api/gettimes', async (req, res) => {
+	const token = req.headers['x-access-token']
+	const times = await Times.find({}).limit(3)
+	res.json({message : times})
+})
+
 
 app.listen(1337, () => {
     console.log('Server started on 1337')
