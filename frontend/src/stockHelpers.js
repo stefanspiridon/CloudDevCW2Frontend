@@ -11,6 +11,12 @@ function test() {
 }
 
 //test();
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 
 async function getAllStocks(character) {
     let counter = 0;
@@ -59,7 +65,7 @@ async function getQuote(symbol) {
             'x-rapidapi-key': '5f4b842c78msh1c7ceedb71bf72ep167855jsn2b8b7122ca99'
         }
     };
-      
+    await sleep(1000);
     axios.request(options).then(function (response) {
         var outputObj = {
             'symbol': response.data.symbol,
@@ -70,6 +76,7 @@ async function getQuote(symbol) {
         return outputObj;
     }).catch(function (err) {
         console.error(err);
+        //console.log(err);
     });
 }
 

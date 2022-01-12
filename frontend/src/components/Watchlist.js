@@ -58,6 +58,8 @@ export const Watchlist = (props) => {
     const toggling = () => setIsOpen(!isOpen);
     const history = useHistory();
 
+    const [infinite, setInfinite] = useState(false);
+
     function isCurrent(symbol) {
         if (symbol === currentSymbol) {
             return true;
@@ -123,6 +125,7 @@ export const Watchlist = (props) => {
         const data = await req.json()
         if (data.status === 'ok') {
             setWatchlist(data.watchlist)
+            setInfinite(!infinite);
             //console.log(watchlist)
         } else {
             alert(data.error)
@@ -154,6 +157,7 @@ export const Watchlist = (props) => {
 				history.replace('/')
 			} else {
 				getList()
+                //infinite = !infinite;
                 console.log('List Retrieved')
 			}
 		}
@@ -167,7 +171,7 @@ export const Watchlist = (props) => {
         getList()
         //This function listens for watchlist changing and then calls getList
         //To update from db
-    }, [watchlist])
+    }, [infinite])
 
     return (
         <>

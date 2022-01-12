@@ -1,20 +1,25 @@
 import React from 'react'
 import Navbar from "../components/Navbar";
 import Watchlist from "../components/Watchlist";
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 import jwt from 'jsonwebtoken';
 import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 import './Dashboard.css';
+import { PieChart } from 'react-minimal-pie-chart';
 
 const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
 
 function Dashboard() {
-    const [suggestions, setSuggestions] = useState([]);
+    const [watchlist, setWatchlist] = useState([]);
+    const [toggleBool, setToggleBool] = useState(false);
     const [currentSymbol, setCurrentSymbol] = useState('TSLA');
-    const [shortMedLong, setShortMedLong] = useState('short');
+    const [shortMedLong, setShortMedLong] = useState('med');
     const [predictedPrice, setPredictedPrice] = useState(0);
+    const [percentageChange, setPercentageChange] = useState(50);
     const [predictionPercentages, setPredictionPercentages] = useState([50, 50]);
     const [decisionCanvasString, setDecisionCanvasString] = useState("{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}");
 
@@ -40,30 +45,86 @@ function Dashboard() {
 
     function getTimeFromSML() {
         if (shortMedLong == "short") {
-            return (new Date().getTime()) + 86400
+            return (new Date().getTime())/1000 + 86400
         } else if (shortMedLong == "med") {
-            return (new Date().getTime()) + 2678400
+            return (new Date().getTime())/1000 + 2678400
         } else if (shortMedLong == "long") {
-            return (new Date().getTime()) + 31536000
+            return (new Date().getTime())/1000 + 31536000
         } else {
             alert('error');
         }
         //return calculated timestamp from shortMedLong
     }
     
-    async function getPrediction() {
-        setPredictedPrice(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
-        
-        setPredictionPercentages(percIncrease(predictedPrice));
+    function getPrediction() {
+        let myPromise = new Promise((resolve, reject) => {
+            resolve(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
+        })
+        myPromise.then((res) => {
+            setPredictedPrice(res.data.price);
+            producePieChart();
+        })
+        //setDecisionCanvasString("{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;" + predictionPercentages[0] + "&quot;,&quot;" + predictionPercentages[1] + "&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}");
     }
 
-    useEffect(() => {
-        getPrediction();
-    }, [])
+    async function getCurrentPrice(symbol) {
+        return stockhelpers.getQuote(currentSymbol);
+    }
 
-    useEffect(() => {
-        getPrediction();
-    }, [shortMedLong])
+    function producePieChart() {
+        let myPromise = new Promise((resolve, reject) => {
+            resolve(getCurrentPrice('MSFT'))
+        })
+        myPromise.then((result) => {
+            //console.log(result.data.price);
+            let inc = percIncrease(predictedPrice, result.data.price)
+            let buyperc = 50;
+            let sellperc = 50;
+            if(inc > 100) {
+                //over 100% increase
+                buyperc = 100;
+            } else if(inc < -100) {
+                //over 100% decrease
+                buyperc = 0;
+            } else {
+                //between 0 and 100
+                buyperc += inc / 2;
+            }
+            sellperc = 100 - buyperc;
+            setPredictionPercentages([sellperc, buyperc]);
+        })
+    }
+
+    const getList = async() => {
+        const req = await fetch('http://localhost:1337/api/userwatchlist', { 
+			headers: {
+				'x-access-token': localStorage.getItem('token'),
+			},
+        })
+
+        const data = await req.json()
+        if (data.status === 'ok') {
+            setWatchlist(data.watchlist)
+            //console.log(watchlist)
+        } else {
+            alert(data.error)
+        }
+    }
+
+    // useEffect(() => {
+    //     let isActive = true;
+    //     getPrediction();
+    //     //getList();
+    //     return () => { isActive = false };
+    // })
+
+    // useEffect(() => {
+    //     getPrediction();
+    // }, [shortMedLong])
+
+    // useEffect(() => {
+    //     getList();
+    // })
 
     return (
         
@@ -84,23 +145,23 @@ function Dashboard() {
                                 <div className="card-header py-3">
                                     <h6 className="text-primary fw-bold m-0">Stocks</h6>
                                 </div>
-                                <Watchlist currentSymbol={currentSymbol}/>
+                                <Watchlist currentSymbol={currentSymbol} />
                             </div>
                         </div>
                         <div className="col-lg-7 col-xl-8">
                             <div className="card shadow mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-    <h6 class="text-primary fw-bold m-0">Chart</h6>
-    <div class="dropdown no-arrow"><button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"></button>
-        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a>
-            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">Something else here</a>
-        </div>
-    </div>
-    <div class="dropdown"><button class="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Bitcoin</button>
-        <div class="dropdown-menu"><a class="dropdown-item" href="#">First Item</a><a class="dropdown-item" href="#">Second Item</a><a class="dropdown-item" href="#">Third Item</a></div>
-    </div>
-</div>
+                            <div className="card-header d-flex justify-content-between align-items-center">
+                            <h6 className="text-primary fw-bold m-0">Chart</h6>
+                            <div className="dropdown no-arrow"><button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"></button>
+                                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                    <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">Action</a><a class="dropdown-item" href="#">Another action</a>
+                                    <div className="dropdown-divider"></div><a class="dropdown-item" href="#">Something else here</a>
+                                </div>
+                            </div>
+                            <div class="dropdown"><button class="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Bitcoin</button>
+                                <div class="dropdown-menu"><a class="dropdown-item" href="#">First Item</a><a class="dropdown-item" href="#">Second Item</a><a class="dropdown-item" href="#">Third Item</a></div>
+                            </div>
+                        </div>
                                 
                                 <div className="card-body">
                                     <div className="chart-area m-0">   <TradingViewWidget symbol={currentSymbol} autosize /></div>
@@ -122,7 +183,7 @@ function Dashboard() {
                                     </div>
                                 </div>
                                 <div className="card-body">
-                                    <div className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;}},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;}}}"></canvas></div>
+                                    {/* <div className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;}},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;}}}"></canvas></div> */}
                                     <div className="text-center small mt-4"><span className="me-2"><i className="fas fa-circle text-primary"></i>&nbsp;Apple</span><span className="me-2"><i className="fas fa-circle text-success"></i>&nbsp;Amazon</span><span className="me-2"><i className="fas fa-circle text-info"></i>&nbsp;Facebook</span></div>
                                 </div>
                             </div>
@@ -143,13 +204,30 @@ function Dashboard() {
                                 
                                 </div>
                                 <div className="card-body">
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={8}>
+                                            <PieChart totalValue={100} radius={35} animate={true} startAngle={90}
+                                                data={[
+                                                    { title: 'One', value: predictionPercentages[0], color: '#d4a013' },
+                                                    { title: 'Two', value: predictionPercentages[1], color: '#1b1b6e' },
+                                                ]}
+                                            />
+                                            {/* <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart={decisionCanvasString}></canvas></div> */}
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                            <Button variant="contained" sx={{mt: 3, mb: 2, bgcolor:'#060b26' }} onClick={getPrediction()} >Calculate Prediction</Button>
+                                            <p>1 Month Prediction: <strong>${predictedPrice}</strong></p>
+                                            <p>Percentage Change: <strong>{percentageChange}%</strong></p>
+                                        </Grid>
+                                    </Grid>
+                                    
                                     {/* <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() =>setShortMedLong('short')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Short</a>
                                     <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('med')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Medium</a>
                                     <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('long')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Long</a> */}
                                     {/* <div className="result"> */}
                                         {/* <p>Result: {predictedPrice}</p> */}
                                     {/* </div> */}
-                                    <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}"></canvas></div>
+                                    {/* <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}"></canvas></div> */}
                                 </div>
                                 
                             </div>
