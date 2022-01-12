@@ -74,6 +74,20 @@ function Dashboard() {
         return stockhelpers.getQuote(currentSymbol);
     }
 
+    function percIncrease(a, b) {
+        let percent;
+        if(b !== 0) {
+            if(a !== 0) {
+                percent = (b - a) / a * 100;
+            } else {
+                percent = b * 100;
+            }
+        } else {
+            percent = - a * 100;            
+        }       
+        return Math.floor(percent);
+    }
+
     function producePieChart() {
         let myPromise = new Promise((resolve, reject) => {
             resolve(getCurrentPrice('MSFT'))
