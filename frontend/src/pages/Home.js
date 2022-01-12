@@ -24,7 +24,7 @@ const getNyTimes = () => {
     <div className="home">
         <Navbar />
         <div className="wrapper">
-            <Container maxWidth="lg" sx={{mt: 20, mb: 30,display: "block" }}>
+            <Container maxWidth="lg" sx={{mb: 30,display: "block" }}>
                 <h1 style={{color:'#F9B346', fontWeight: 'bold'}}>Let's Trade Pal!</h1>
 
                 <h2>TradePal is your one stop shop for Financial News and Advice as well as Stock Market Price Data and Predictions!</h2>
