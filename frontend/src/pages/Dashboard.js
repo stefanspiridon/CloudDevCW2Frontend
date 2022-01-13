@@ -12,11 +12,18 @@ import { CSVLink } from "react-csv";
 
 const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
-
+var templateSymbol = 'Choose Symbol';
+// var termState = "med";
 function Dashboard() {
+    var shortPred;
+    var medPred;
+    var longPred;
     const [suggestions, setSuggestions] = useState([]);
     const [currentSymbol, setCurrentSymbol] = useState('TSLA');
-    const [shortMedLong, setShortMedLong] = useState('long');
+    
+    
+    // console.log("test ", templateSymbol)
+    var [shortMedLong, setShortMedLong] = useState('long');
     const [predictedPrice, setPredictedPrice] = useState(0);
 
     const [percentageChange, setPercentageChange] = useState();
@@ -26,9 +33,12 @@ function Dashboard() {
     const [data, setData] = useState([]);
     const [facebook, setFacebook] = useState([50,50]);
 
-    var currentSymbolForPrediction = 'TSLA'
+    // var currentSymbolForPrediction = 'TSLA'
 
-    
+    // function changePeriod(_period){
+        // [shortMedLong, setShortMedLong] = termState;
+//    }
+
     function getTimeFromSML() {
         if (shortMedLong == "short") {
             return 86400
@@ -50,6 +60,27 @@ function Dashboard() {
         return axios.post(URI,inputMsg);
     }
 
+    function getTimeFromSML2(param) {
+        if (param == "short") {
+            return 86400
+        } else if (param == "med") {
+            return 2678400
+        } else if (param == "long") {
+            return 31536000
+        } else {
+            alert('error');
+        }
+        //return calculated timestamp from shortMedLong
+    }
+
+
+
+    async function getAll() { 
+        shortPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("short"), 'ticker': currentSymbol})
+        medPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("med"), 'ticker': currentSymbol})
+        longPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("long"), 'ticker': currentSymbol})
+        console.log(shortPred, "1tes")
+    }
 
     function percIncrease(a, b) {
         let percent;
@@ -72,36 +103,50 @@ function Dashboard() {
     function getDataForChart(p) {
         let buy = 0;
         let sell = 0;
+
+        // p = p*2;
+
         if (p > 100) {
             buy = 100;
         } else {
-            buy = p
+            buy = p;
         }
         buy = buy / 2;
         buy += 50;
         sell = 100 - buy;
-        setChartValues([buy,sell]);
+        var dif = buy - sell; 
+        sell = 50 - dif;
+        buy = 50 + dif;
+        // sell += dif; 
+        // buy -= dif;
+        setChartValues([buy, sell]); 
     }
 
-    // function changeChart(symbol) {
-    //     //currentSymbolForPrediction = symbol;
-    //     setCurrentSymbol(symbol);
-    //     let myPromise = new Promise((resolve, reject) => {
-    //         resolve(getPrediction())
-    //         reject(console.log('error with stock prediction promise'))
-    //     })
-    //     myPromise.then((value) => {
-    //         console.log(value);
-    //         let value1 = value[0].data
-    //         let value2 = value[1].data
-    //         console.log(value1) 
-    //         console.log(value2)
-    //         let p = percIncrease(value1, value2)
-    //         console.log(p);
-    //         setPercentageChange(p);
-    //         getDataForChart(p);
-    //     })
-    // }
+    function changeChart(symbol) {
+        //currentSymbolForPrediction = symbol;
+        templateSymbol = symbol;
+        setCurrentSymbol(symbol);
+        let myPromise = new Promise((resolve, reject) => {
+            resolve(getPrediction())
+            reject(console.log('error with stock prediction promise'))
+        })
+        myPromise.then((value) => {
+            console.log(value);
+            let value1 = value[0].data
+            let value2 = value[1].data
+            console.log(value1) 
+            console.log(value2)
+            let p = percIncrease(value1, value2)
+            console.log(p);
+            setPercentageChange(p);
+            getDataForChart(p);
+            
+        });
+        getAll();
+        console.log("test ", templateSymbol);
+        
+        
+    }
 
     useEffect(() => {
         let myPromise = new Promise((resolve, reject) => {
@@ -246,12 +291,56 @@ function Dashboard() {
                                             <div className="dropdown-divider"></div><a className="dropdown-item" href="#">&nbsp;Something else here</a>
                                         </div>
                                     </div>
-                                    <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Choose Stock</button>
-                                        {/* <div className="dropdown-menu"><p className="dropdown-item" onClick={changeChart('TSLA')}>Tesla</p><p className="dropdown-item" onClick={changeChart('MSFT')}>Microsoft</p><p className="dropdown-item" onClick={changeChart('AAPL')}>Apple</p></div> */}
+                                    <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">{templateSymbol}</button>
+                                        <div className="dropdown-menu">
+                                        <p className="dropdown-item" onClick={() => {changeChart('TSLA')}}>Tesla</p>
+                                        <p className="dropdown-item" onClick={() => {changeChart('MSFT')}}>Microsoft</p>
+                                        <p className="dropdown-item" onClick={() => {changeChart('AAPL')}}>Apple</p>
+                                        </div>
                                     </div>
+                                    
                                 
                                 </div>
                                 <div className="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 col-xl-3 mb-4">
+                                        <div class="card shadow border-start-primary py-2">
+                                            <div class="card-body">
+                                                <div class="row align-items-center no-gutters">
+                                                    <div class="col me-2">
+                                                        <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span>SHORT TERM</span></div>
+                                                        <div class="text-dark fw-bold h5 mb-0"><span>{shortPred}</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-3 mb-4">
+                                        <div class="card shadow border-start-primary py-2">
+                                            <div class="card-body">
+                                                <div class="row align-items-center no-gutters">
+                                                    <div class="col me-2">
+                                                        <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span>Medium TERM</span></div>
+                                                        <div class="text-dark fw-bold h5 mb-0"><span>{medPred}</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-3 mb-4">
+                                        <div class="card shadow border-start-primary py-2">
+                                            <div class="card-body">
+                                                <div class="row align-items-center no-gutters">
+                                                    <div class="col me-2">
+                                                        <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span>Long TERM</span></div>
+                                                        <div class="text-dark fw-bold h5 mb-0"><span>{longPred}</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <PieChart totalValue={100} startAngle={90} radius={40}
                                     data={[
                                         { title: 'One', value: chartValues[0], color: '#2ba658' },
