@@ -6,6 +6,7 @@ const User = require('./models/user')
 const Tweet = require('./models/tweet')
 const Facebook = require('./models/facebook')
 const Times = require('./models/times')
+const Investing = require('./models/investing')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
@@ -143,6 +144,12 @@ app.get('/api/gettimes', async (req, res) => {
 	const token = req.headers['x-access-token']
 	const times = await Times.find({}).limit(3)
 	res.json({message : times})
+})
+
+app.get('/api/getinvesting', async (req, res) => {
+	const token = req.headers['x-access-token']
+	const investing = await Investing.find({}).limit(3)
+	res.json({message : investing})
 })
 
 

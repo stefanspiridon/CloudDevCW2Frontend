@@ -136,6 +136,18 @@ function Dashboard() {
             .then(facebook => setFacebook(facebook.message))
     }
 
+    const getNyTimes = () => {
+        fetch('http://localhost:1337/api/gettimes')
+            .then(res => res.json())
+            .then(data => setFacebook(data.message))
+    }
+
+    const getInvesting = () => {
+        fetch('http://localhost:1337/api/getinvesting')
+            .then(res => res.json())
+            .then(data => setFacebook(data.message))
+    }
+
     return (
         
         <div className='dashboard'>
@@ -241,7 +253,7 @@ function Dashboard() {
                                                 </div>
                                             </div>
                                             <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Tesla</button>
-                                                <div className="dropdown-menu"><a className="dropdown-item" onSelect={getTweetsApi}>Nvidia</a><a className="dropdown-item" href="#">Apple</a><a className="dropdown-item" href="#">Microsoft</a></div>
+                                                <div className="dropdown-menu"><a className="dropdown-item" >Nvidia</a><a className="dropdown-item" href="#">Apple</a><a className="dropdown-item" href="#">Microsoft</a></div>
                                             </div>
                                         </div>
                                         <div className="card-body">
@@ -253,8 +265,8 @@ function Dashboard() {
                                     <div className="card shadow mb-4">
                                         <div className="card-header d-flex justify-content-between align-items-center">
                                             <h6 className="text-primary fw-bold m-0">News</h6>
-                                            <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Facebook</button>
-                                                <div className="dropdown-menu"><a className="dropdown-item" href="#">New York Times</a><a className="dropdown-item" href="#">Investing.com</a><a className="dropdown-item" href="#">Economic Times</a></div>
+                                            <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button" onClick={e => {getFacebookApi()}}>Facebook</button>
+                                                <div className="dropdown-menu"><a className="dropdown-item" onClick={e => {getInvesting()}}>Investing.com</a><a className="dropdown-item" onClick={e => {getNyTimes()}}>Economic Times</a></div>
                                             </div>
                                         </div>
                                         <div className="card-body">
