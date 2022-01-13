@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 import './Dashboard.css';
 import DisplayTable from '../components/DisplayTable';
+import { PieChart } from 'react-minimal-pie-chart';
 
 const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
@@ -14,31 +15,19 @@ const axios = require('axios').default
 function Dashboard() {
     const [suggestions, setSuggestions] = useState([]);
     const [currentSymbol, setCurrentSymbol] = useState('TSLA');
-    const [shortMedLong, setShortMedLong] = useState('short');
+    const [shortMedLong, setShortMedLong] = useState('long');
     const [predictedPrice, setPredictedPrice] = useState(0);
+
+    const [percentageChange, setPercentageChange] = useState();
+    const [chartValues, setChartValues] = useState([]);
     //const [text, setText] = useState('');
     //const watchList = [];
     const [data, setData] = useState([]);
-    const [facebook, setFacebook] = useState([]);
+    const [facebook, setFacebook] = useState([50,50]);
 
-    function StockPrediction(inputMsg) { 
-        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
-        var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
+    var currentSymbolForPrediction = 'TSLA'
+
     
-        var options = {
-            url: URI,
-            // hostname: "cosmosdbquiplash.azurewebsites.net",
-            // path: "/api/register?",
-            method: 'post',
-            headers: { 
-                'Content-Type': 'application/json',
-                'x-functions-key': APP_KEY
-            }
-        }
-        //console.log("outputting!")
-        return axios.post(URI,inputMsg);
-    }
-
     function getTimeFromSML() {
         if (shortMedLong == "short") {
             return 86400
@@ -51,13 +40,86 @@ function Dashboard() {
         }
         //return calculated timestamp from shortMedLong
     }
+
+    function StockPrediction(inputMsg) { 
+        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
+        var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
     
-    async function getPrediction() {
-        setPredictedPrice(StockPrediction({'timestamp': getTimeFromSML(), 'ticker': currentSymbol}));
+        //console.log("outputting!")
+        return axios.post(URI,inputMsg);
     }
 
+
+    function percIncrease(a, b) {
+        let percent;
+        if(b !== 0) {
+            if(a !== 0) {
+                percent = (b - a) / a * 100;
+            } else {
+                percent = b * 100;
+            }
+        } else {
+            percent = - a * 100;            
+        }       
+        return percent.toFixed(2);
+    }
+    
+    async function getPrediction() {
+        return [await StockPrediction({'timestamp': new Date().getTime() /1000, 'ticker': currentSymbol}),await  StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML(), 'ticker': currentSymbol})]
+    }
+
+    function getDataForChart(p) {
+        let buy = 0;
+        let sell = 0;
+        if (p > 100) {
+            buy = 100;
+        } else {
+            buy = p
+        }
+        buy = buy / 2;
+        buy += 50;
+        sell = 100 - buy;
+        setChartValues([buy,sell]);
+    }
+
+    // function changeChart(symbol) {
+    //     //currentSymbolForPrediction = symbol;
+    //     setCurrentSymbol(symbol);
+    //     let myPromise = new Promise((resolve, reject) => {
+    //         resolve(getPrediction())
+    //         reject(console.log('error with stock prediction promise'))
+    //     })
+    //     myPromise.then((value) => {
+    //         console.log(value);
+    //         let value1 = value[0].data
+    //         let value2 = value[1].data
+    //         console.log(value1) 
+    //         console.log(value2)
+    //         let p = percIncrease(value1, value2)
+    //         console.log(p);
+    //         setPercentageChange(p);
+    //         getDataForChart(p);
+    //     })
+    // }
+
     useEffect(() => {
-        getPrediction()
+        let myPromise = new Promise((resolve, reject) => {
+            resolve(getPrediction())
+            reject(console.log('error with stock prediction promise'))
+        })
+        myPromise.then((value) => {
+            console.log(value);
+            let value1 = value[0].data
+            let value2 = value[1].data
+            console.log(value1) 
+            console.log(value2)
+            let p = percIncrease(value1, value2)
+            console.log(p);
+            setPercentageChange(p);
+            getDataForChart(p);
+        })
+        //console.log(percIncrease(1.5,2))
+        //console.log(predictedPrice)
         getTweetsApi()
         getFacebookApi()
     }, [])
@@ -146,19 +208,21 @@ function Dashboard() {
                                             <div className="dropdown-divider"></div><a className="dropdown-item" href="#">&nbsp;Something else here</a>
                                         </div>
                                     </div>
-                                    <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Bitcoin</button>
-                                        <div className="dropdown-menu"><a className="dropdown-item" href="#" onClick={(e) => console.log(e.target.value)}>First Item</a><a className="dropdown-item" href="#">Second Item</a><a className="dropdown-item" href="#">Third Item</a></div>
+                                    <div className="dropdown"><button className="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">Choose Stock</button>
+                                        {/* <div className="dropdown-menu"><p className="dropdown-item" onClick={changeChart('TSLA')}>Tesla</p><p className="dropdown-item" onClick={changeChart('MSFT')}>Microsoft</p><p className="dropdown-item" onClick={changeChart('AAPL')}>Apple</p></div> */}
                                     </div>
                                 
                                 </div>
                                 <div className="card-body">
-                                    {/* <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() =>setShortMedLong('short')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Short</a>
-                                    <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('med')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Medium</a>
-                                    <a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" onClick={() => setShortMedLong('long')}><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Long</a> */}
-                                    {/* <div className="result"> */}
-                                        {/* <p>Result: {predictedPrice}</p> */}
-                                    {/* </div> */}
-                                    <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}"></canvas></div>
+                                <PieChart totalValue={100} startAngle={90} radius={40}
+                                    data={[
+                                        { title: 'One', value: chartValues[0], color: '#2ba658' },
+                                        { title: 'Two', value: chartValues[1], color: '#C13C37' },
+                                    ]}
+                                />
+                                <p>Stock: {currentSymbol}</p>
+                                <p>1Y Change: {percentageChange}</p>
+                                    {/* <div data-bs-toggle="tooltip" data-bss-tooltip="" className="chart-area"><canvas data-bss-chart="{&quot;type&quot;:&quot;pie&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;SELL&quot;,&quot;BUY&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;Revenue&quot;,&quot;backgroundColor&quot;:[&quot;rgba(228,10,10,0.54)&quot;,&quot;rgba(34,184,21,0.48)&quot;],&quot;borderColor&quot;:[&quot;#4e73df&quot;,&quot;#4e73df&quot;],&quot;data&quot;:[&quot;25&quot;,&quot;75&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:true,&quot;legend&quot;:{&quot;display&quot;:false,&quot;labels&quot;:{&quot;fontStyle&quot;:&quot;normal&quot;},&quot;reverse&quot;:false},&quot;title&quot;:{&quot;fontStyle&quot;:&quot;bold&quot;,&quot;display&quot;:false}}}"></canvas></div> */}
                                 </div>
                                 
                             </div>
