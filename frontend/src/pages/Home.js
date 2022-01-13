@@ -23,18 +23,18 @@ const getNyTimes = () => {
   return (
     <div className="home">
         <Navbar />
-        <div className="wrapper">
+        <div className="wrapper" style={{marginTop: "3%"}}>
             <Container maxWidth="lg" sx={{mb: 30,display: "block" }}>
-                <h1 style={{color:'#F9B346', fontWeight: 'bold'}}>Let's Trade Pal!</h1>
+                <h1 style={{color:'#F9B346', fontWeight: 'bold'}}>Let's Trade, Pal!</h1>
 
-                <h2>TradePal is your one stop shop for Financial News and Advice as well as Stock Market Price Data and Predictions!</h2>
-                <h3>Visit our Dashboard to search for the latest stocks, analyse their price over time and get a Price Prediction based on Machine Learning Algorithms, receive Potfolio Advice and check the recent relevant Social Media Posts.  </h3>
+                <h4>TradePal is your one stop shop for Financial News and Advice as well as Stock Market Price Data and Predictions!</h4>
+                <h5>Visit our Dashboard to search for the latest stocks, analyse their price over time and get a Price Prediction based on Machine Learning Algorithms, receive Potfolio Advice and check the recent relevant Social Media Posts.  </h5>
 
 
                 <div className="col-md-12 mt-5">
                                     <div className="card shadow mb-4">
                                         <div className="card-header d-flex justify-content-between align-items-center">
-                                            <h6 className="text-primary fw-bold m-0">Latest News</h6>
+                                            <h4 className="text-primary fw-bold m-0">Latest News</h4>
                                         </div>
                                         <div className="card-body">
                                             <DisplayTable datas={data}/> 

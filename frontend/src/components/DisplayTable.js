@@ -10,9 +10,9 @@ export default function DisplayTable(props) {
                 datas.map((data,index) => {
                     console.log(data);
                     return(
-                        <div class='row mb-3'>
-                            <div class='col'>{data.StockId}</div> 
-                            <div class='col-10'>{data.Text}</div>
+                        <div class='row mb-2'>
+                            <div class='col' style={{fontSize: "24px"}}>{data.StockId}</div> 
+                            <div class='col-10' style={{fontSize: "20px"}}>{data.Text}</div>
                         </div>
                     )
                 } )

@@ -12,7 +12,7 @@ function About() {
   return (
     <div className="about">
         <Navbar />
-        <div className="wrapper">
+        <div className="wrapper" style={{marginTop: "3%"}}>
             <Container maxWidth="lg" sx={{mb: 30,display: "block" }}>
                 <h1 style={{color:'#F9B346', fontWeight: 'bold'}}>About Us</h1>
 
