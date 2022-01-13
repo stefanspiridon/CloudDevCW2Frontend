@@ -8,6 +8,7 @@ import TradingViewWidget from 'react-tradingview-widget';
 import './Dashboard.css';
 import DisplayTable from '../components/DisplayTable';
 import { PieChart } from 'react-minimal-pie-chart';
+import { CSVLink } from "react-csv";
 
 const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
@@ -148,6 +149,30 @@ function Dashboard() {
             .then(data => setFacebook(data.message))
     }
 
+    const headers = [
+        { label: "Stock", key: "stock" },
+        { label: "Buy %", key: "buy" },
+        { label: "Sell %", key: "sell" },
+        { label: "Change", key: "change" },
+        { label: "Time", key: "time"}
+      ];
+
+    const report = [
+        {stock : currentSymbol, buy : chartValues[0], sell : chartValues[1], change : percentageChange, time: shortMedLong}
+    ];
+
+    const csvReport = {
+        data: report,
+        headers: headers,
+        filename: 'report.csv'
+      };
+
+    const prettyLink  = {
+        fontSize: 16,
+        color: '#fff',
+        textDecoration: 'none'
+      };
+
     return (
         
         <div className='dashboard'>
@@ -159,7 +184,8 @@ function Dashboard() {
             <div id="content">
                 <div className="container-fluid">
                     <div className="d-sm-flex justify-content-between align-items-center mt-4 mb-4">
-                        <h3 className="text-dark mb-0">Dashboard</h3><a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i className="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a>
+                        <h3 className="text-dark mb-0">Dashboard</h3><a className="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#">
+                        <CSVLink {...csvReport} style={prettyLink}>Generate Report</CSVLink></a>
                     </div>
                     <div className="row">
                         <div className="col-lg-5 col-xl-4">
