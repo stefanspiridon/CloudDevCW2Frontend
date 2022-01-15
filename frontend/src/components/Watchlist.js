@@ -110,7 +110,7 @@ export const Watchlist = (props) => {
         var newWatchlist = watchlist;
         newWatchlist.push({'symbol': symbol, 'name': name});
 
-        const req = await fetch('http://localhost:1337/api/userwatchlist', { 
+        const req = await fetch('https://tradepal-backend.nw.r.appspot.com/api/userwatchlist', { 
             method: 'POST',
 			headers: {
 				'x-access-token': localStorage.getItem('token'),
@@ -130,7 +130,7 @@ export const Watchlist = (props) => {
     }
 
     const getList = async() => {
-        const req = await fetch('http://localhost:1337/api/userwatchlist', { 
+        const req = await fetch('https://tradepal-backend.nw.r.appspot.com/api/userwatchlist', { 
 			headers: {
 				'x-access-token': localStorage.getItem('token'),
 			},

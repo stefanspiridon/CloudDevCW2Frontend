@@ -35,7 +35,7 @@ export const Register = props => {
 
   async function registerCredentials(event){
     event.preventDefault()
-    const response = await fetch('http://localhost:1337/api/register', {
+    const response = await fetch('https://tradepal-backend.nw.r.appspot.com/api/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export const Register = props => {
   }
 
   async function loginCredentials(){
-    const response = await fetch('http://localhost:1337/api/login', {
+    const response = await fetch('https://tradepal-backend.nw.r.appspot.com/api/login', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

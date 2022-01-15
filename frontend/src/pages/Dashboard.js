@@ -10,7 +10,7 @@ import DisplayTable from '../components/DisplayTable';
 import { PieChart } from 'react-minimal-pie-chart';
 import { CSVLink } from "react-csv";
 
-const stockhelpers = require('../stockHelpers.js');
+//const stockhelpers = require('../stockHelpers.js');
 const axios = require('axios').default
 var templateSymbol = 'Choose Symbol';
 // var termState = "med";
@@ -26,8 +26,8 @@ function Dashboard() {
     var [shortMedLong, setShortMedLong] = useState('long');
     const [predictedPrice, setPredictedPrice] = useState(0);
 
-    const [percentageChange, setPercentageChange] = useState();
-    const [chartValues, setChartValues] = useState([]);
+    const [percentageChange, setPercentageChange] = useState(12);
+    const [chartValues, setChartValues] = useState([52,48]);
     //const [text, setText] = useState('');
     //const watchList = [];
     const [data, setData] = useState([]);
@@ -39,48 +39,48 @@ function Dashboard() {
         // [shortMedLong, setShortMedLong] = termState;
 //    }
 
-    function getTimeFromSML() {
-        if (shortMedLong == "short") {
-            return 86400
-        } else if (shortMedLong == "med") {
-            return 2678400
-        } else if (shortMedLong == "long") {
-            return 31536000
-        } else {
-            alert('error');
-        }
-        //return calculated timestamp from shortMedLong
-    }
+    // function getTimeFromSML() {
+    //     if (shortMedLong == "short") {
+    //         return 86400
+    //     } else if (shortMedLong == "med") {
+    //         return 2678400
+    //     } else if (shortMedLong == "long") {
+    //         return 31536000
+    //     } else {
+    //         alert('error');
+    //     }
+    //     //return calculated timestamp from shortMedLong
+    // }
 
-    function StockPrediction(inputMsg) { 
-        const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
-        var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
+    // function StockPrediction(inputMsg) { 
+    //     const APP_KEY = "01TvmPT8hzkv18vY8USE1W4ifTiIDCCSP/CMWSH/gqZqBpQXn9z22Q==";
+    //     var URI = "https://clouddevstockprediction.azurewebsites.net/api/StockPrediction?";
     
-        //console.log("outputting!")
-        return axios.post(URI,inputMsg);
-    }
+    //     //console.log("outputting!")
+    //     return axios.post(URI,inputMsg);
+    // }
 
-    function getTimeFromSML2(param) {
-        if (param == "short") {
-            return 86400
-        } else if (param == "med") {
-            return 2678400
-        } else if (param == "long") {
-            return 31536000
-        } else {
-            alert('error');
-        }
-        //return calculated timestamp from shortMedLong
-    }
+    // function getTimeFromSML2(param) {
+    //     if (param == "short") {
+    //         return 86400
+    //     } else if (param == "med") {
+    //         return 2678400
+    //     } else if (param == "long") {
+    //         return 31536000
+    //     } else {
+    //         alert('error');
+    //     }
+    //     //return calculated timestamp from shortMedLong
+    // }
 
 
 
-    async function getAll() { 
-        shortPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("short"), 'ticker': currentSymbol})
-        medPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("med"), 'ticker': currentSymbol})
-        longPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("long"), 'ticker': currentSymbol})
-        console.log(shortPred, "1tes")
-    }
+    // async function getAll() { 
+    //     shortPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("short"), 'ticker': currentSymbol})
+    //     medPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("med"), 'ticker': currentSymbol})
+    //     longPred = await StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML2("long"), 'ticker': currentSymbol})
+    //     console.log(shortPred, "1tes")
+    // }
 
     function percIncrease(a, b) {
         let percent;
@@ -96,9 +96,9 @@ function Dashboard() {
         return percent.toFixed(2);
     }
     
-    async function getPrediction() {
-        return [await StockPrediction({'timestamp': new Date().getTime() /1000, 'ticker': currentSymbol}),await  StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML(), 'ticker': currentSymbol})]
-    }
+    // async function getPrediction() {
+    //     return [await StockPrediction({'timestamp': new Date().getTime() /1000, 'ticker': currentSymbol}),await  StockPrediction({'timestamp': new Date().getTime() /1000 + getTimeFromSML(), 'ticker': currentSymbol})]
+    // }
 
     function getDataForChart(p) {
         let buy = 0;
@@ -127,7 +127,7 @@ function Dashboard() {
         templateSymbol = symbol;
         setCurrentSymbol(symbol);
         let myPromise = new Promise((resolve, reject) => {
-            resolve(getPrediction())
+            //resolve(getPrediction())
             reject(console.log('error with stock prediction promise'))
         })
         myPromise.then((value) => {
@@ -142,7 +142,7 @@ function Dashboard() {
             getDataForChart(p);
             
         });
-        getAll();
+        //getAll();
         console.log("test ", templateSymbol);
         
         
@@ -150,7 +150,7 @@ function Dashboard() {
 
     useEffect(() => {
         let myPromise = new Promise((resolve, reject) => {
-            resolve(getPrediction())
+            //resolve(getPrediction())
             reject(console.log('error with stock prediction promise'))
         })
         myPromise.then((value) => {
@@ -171,25 +171,25 @@ function Dashboard() {
     }, [])
 
     const getTweetsApi = () => {
-        fetch('http://localhost:1337/api/gettweets')
+        fetch('https://tradepal-backend.nw.r.appspot.com/api/gettweets')
             .then(res => res.json())
             .then(data => setData(data.message))
     }
 
     const getFacebookApi = () => {
-        fetch('http://localhost:1337/api/getfacebook')
+        fetch('https://tradepal-backend.nw.r.appspot.com/api/getfacebook')
             .then(res => res.json())
             .then(facebook => setFacebook(facebook.message))
     }
 
     const getNyTimes = () => {
-        fetch('http://localhost:1337/api/gettimes')
+        fetch('https://tradepal-backend.nw.r.appspot.com/api/gettimes')
             .then(res => res.json())
             .then(data => setFacebook(data.message))
     }
 
     const getInvesting = () => {
-        fetch('http://localhost:1337/api/getinvesting')
+        fetch('https://tradepal-backend.nw.r.appspot.com/api/getinvesting')
             .then(res => res.json())
             .then(data => setFacebook(data.message))
     }

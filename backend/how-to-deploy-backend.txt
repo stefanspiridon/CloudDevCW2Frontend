@@ -1,0 +1,9 @@
+inside backend folder open a google cloud sdk shell and run:
+
+gcloud app deploy
+gcloud app browse
+
+
+to run locally do:
+npm install
+node index.js

@@ -153,6 +153,12 @@ app.get('/api/getinvesting', async (req, res) => {
 })
 
 
-app.listen(1337, () => {
-    console.log('Server started on 1337')
-})
+app.get('/', (req, res) => {
+	res.send('Hello from App Engine!');
+  });
+
+
+  const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}...`);
+});

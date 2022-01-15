@@ -20,7 +20,7 @@ function App() {
           <ProtectedRoute exact path="/home" component={Home} />
           <ProtectedRoute exact path="/dashboard" component={Dashboard} />
           <ProtectedRoute exact path="/about" component={About} />
-          <Route path="*" component={() => "404 NOT FOUND"} />
+          {/* <Route path="*" component={() => "404 NOT FOUND"} /> */}
         </Switch>
         
       </Router>

@@ -1,0 +1,13 @@
+inside the frontend folder open a terminal and run the following commands:
+
+git init
+heroku create -b https://github.com/mars/create-react-app-buildpack.git
+git add .
+git commit -m "react-create-app on Heroku"
+git push heroku master
+heroku open
+
+
+to run locally do:
+npm install
+npm start

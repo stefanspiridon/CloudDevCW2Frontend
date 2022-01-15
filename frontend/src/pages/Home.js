@@ -15,7 +15,7 @@ function Home() {
 }, [])
 
 const getNyTimes = () => {
-    fetch('http://localhost:1337/api/gettimes')
+    fetch('https://tradepal-backend.nw.r.appspot.com/api/gettimes')
         .then(res => res.json())
         .then(data => setData(data.message))
 }

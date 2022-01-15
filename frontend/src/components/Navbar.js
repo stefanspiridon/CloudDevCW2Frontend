@@ -32,7 +32,7 @@ export const Navbar = props =>  {
 
     
     async function getUser(){
-        const req = await fetch('http://localhost:1337/api/userinfo', {
+        const req = await fetch('https://tradepal-backend.nw.r.appspot.com/api/userinfo', {
 			headers: {
 				'x-access-token': localStorage.getItem('token'),
 			},
